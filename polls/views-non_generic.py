@@ -2,24 +2,25 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template import Context, loader
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
-from django.views import generic
 
 from polls.models import Poll, Choice
 
-class IndexView(generic.ListView):
-  template_name = 'polls/index.html'
-  #context_object_name = 'latest_poll_list'
-  
-  def get_queryset(self):
-    return Poll.objects.order_by('-pub_date')[:5]
+def index(request):
+  #return HttpResponse("Hello World. You're at the poll index")
+  latest_poll_list = Poll.objects.order_by('-pub_date')[:5]
+  template = loader.get_template('polls/index.html')
+  context = Context ({
+    'latest_poll_list': latest_poll_list,
+    })
+  return HttpResponse(template.render(context))
 
-class DetailView(generic.DetailView):
-  template_name = 'polls/detail.html'
-  model = Poll
-
-class ResultsView(generic.DetailView):
-  model = Poll
-  template_name = 'polls/results.html'
+def detail(request, poll_id):
+  try:
+    poll = Poll.objects.get(pk=poll_id)
+  except Poll.DoesNotExist:
+    raise Http404
+  return render(request,'polls/detail.html',{'poll':poll})
+  #return HttpResponse("You're looking at poll %s" % poll_id)
 
 def vote(request, poll_id):
   p = get_object_or_404(Poll, pk=poll_id)
@@ -36,6 +37,14 @@ def vote(request, poll_id):
     selected_choice.save()
 
     return HttpResponseRedirect(reverse('polls:results',args=(p.id,)))
+
+def results(request, poll_id):
+  try:
+    poll = Poll.objects.get(pk=poll_id)
+  except Poll.DoesNotExist:
+    raise Http404
+  return render(request,'polls/results.html',{'poll':poll})
+  #return render(request, reverse('polls:results' , args=(poll.id,)), {'poll':poll})
 
   #return HttpResponse("You're looking at poll %s" % poll_id)
 
