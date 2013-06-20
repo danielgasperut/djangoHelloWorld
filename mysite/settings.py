@@ -1,5 +1,6 @@
 # Django settings for mysite project.
 import os
+import dj_database_url
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -13,17 +14,32 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+ 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+#        'NAME': '/Users/dgasperut_lt/Documents/code/mysite/data',                      # Or path to database file if using sqlite3.
+#        # The following settings are not used with sqlite3:
+#        'USER': '',
+#        'PASSWORD': '',
+#        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+#        'PORT': '',                      # Set to empty string for default.
+#    }
+#}
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '/Users/dgasperut_lt/Documents/code/mysite/data',                      # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
-    }
+if not os.environ.has_key('DATABASE_URL'):
+  os.environ['DATABASE_URL'] = 'postgres://localhost/refreelance'
+
+DATABASES = {'default': dj_database_url.config(default=os.environ['DATABASE_URL'])}
+DATABASES['default']['ENGINE'] = 'django_postgrespool'
+
+DATABASE_POOL_ARGS = {
+  'max_overflow': 490,
+  'pool_size': 10,
+}
+
+SOUTH_DATABASE_ADAPTERS = {
+  'default': 'south.db.postgresql_psycopg2'
 }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
@@ -131,6 +147,7 @@ INSTALLED_APPS = (
      'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'south',
 )
 
 # A sample logging configuration. The only tangible logging
