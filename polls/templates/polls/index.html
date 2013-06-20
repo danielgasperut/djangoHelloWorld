@@ -1,3 +1,6 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" />
+<body>
 {% if poll_list %}
   <ul>
   {% for poll in poll_list %}
@@ -8,3 +11,4 @@
   {% else %}
     <p>No Polls.</p>
   {% endif %}
+</body>
